@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusRide — Working Prototype</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+</head>
+<body>
+<div class="app">
+
+<!-- LOGIN -->
+<section id="login" class="screen active">
+<div class="login">
+<div class="logo">CampusRide</div>
+<div style="color:#bfdbfe;font-size:14px">Smart College / School Bus Tracking</div>
+<div class="login-box">
+<h2>Welcome back</h2><p class="muted">Choose a demo role to continue.</p>
+<div class="role">
+<button class="sel" id="rStudent" onclick="selectRole('student')">Student</button>
+<button id="rDriver" onclick="selectRole('driver')">Driver</button>
+<button id="rAdmin" onclick="selectRole('admin')">Admin</button>
+</div>
+<input class="input" placeholder="Mobile / Email" value="demo@campusride.in">
+<input class="input" placeholder="Password" value="••••••••">
+<button class="primary" onclick="login()">Continue to Demo</button>
+<p style="font-size:11px;color:#94a3b8;margin-top:12px;text-align:center">Prototype mode — sample data only</p>
+</div>
+</div>
+</section>
+
+<!-- STUDENT HOME -->
+<section id="studentHome" class="screen">
+<div class="top"><div class="small">GOOD MORNING</div><h1>Welcome, Student 👋</h1><div style="margin-top:12px;color:#bfdbfe;font-size:12px">Your assigned bus is live</div></div>
+<div class="content">
+<div class="card bus-card">
+<div class="row"><div><div class="muted">LIVE BUS</div><h2>BUS 07</h2></div><div class="bus-icon">🚌</div></div>
+<div style="margin-top:16px"><div class="muted">ARRIVING AT VIJAY NAGAR GATE</div><div class="big-eta"><span id="etaHome">4</span> min</div></div>
+<div class="row" style="margin-top:14px"><span>🚦 <b id="speedHome">32</b> km/h</span><span>📍 1.8 km away</span></div>
+</div>
+<div class="card"><div class="row"><div><b>Rajesh Kumar</b><div class="muted">Driver • BUS 07</div></div><span class="badge">● ONLINE</span></div></div>
+<button class="primary" onclick="show('studentTrack')">Track BUS 07 Live →</button>
+<div class="section-title">Quick access</div>
+<div class="card">
+<div class="list"><div class="avatar">🚌</div><div style="flex:1"><b>My Bus</b><div class="muted">BUS 07 • Hostel → Main Campus</div></div><span>›</span></div>
+<div class="list"><div class="avatar">🔔</div><div style="flex:1"><b>Alerts</b><div class="muted">No critical alerts</div></div><span>›</span></div>
+</div>
+</div>
+<div class="nav"><button class="active" onclick="show('studentHome')"><span>⌂</span>Home</button><button onclick="show('studentTrack')"><span>◉</span>Track</button><button onclick="show('routes')"><span>⌖</span>Routes</button><button onclick="show('alerts')"><span>♢</span>Alerts</button></div>
+</section>
+
+<!-- TRACK -->
+<section id="studentTrack" class="screen">
+<div class="top"><div class="small">LIVE TRACKING</div><h1>BUS 07</h1><div style="margin-top:8px"><span class="badge">● LIVE NOW</span></div></div>
+<div class="content">
+<div class="map">
+<div class="map-head"><span class="floating">📍 Live location</span><span class="floating" id="lastUpdate">Updated now</span></div>
+<div class="road"></div>
+<div class="stop s1"></div><div class="stop s2"></div><div class="stop s3"></div><div class="stop s4"></div>
+<div class="map-label l1">Hostel</div><div class="map-label l2">Vijay Nagar</div><div class="map-label l3">Railway Sq.</div><div class="map-label l4">Main Campus</div>
+<div class="bus-marker" id="busMarker">🚌</div>
+</div>
+<div class="card" style="margin-top:14px">
+<div class="row"><div><div class="muted">NEXT STOP</div><b>Vijay Nagar Gate</b></div><div style="text-align:right"><div class="muted">ETA</div><strong style="font-size:24px;color:#16a34a"><span id="etaTrack">4</span> min</strong></div></div>
+<hr style="border:0;border-top:1px solid #edf1f5;margin:13px 0">
+<div class="row"><span class="muted">Speed <b id="speedTrack">32</b> km/h</span><span class="muted">Distance 1.8 km</span></div>
+</div>
+<button class="primary" onclick="toast('You are now following BUS 07')">◎ Follow Bus</button>
+<div class="section-title">Route</div>
+<div class="card timeline"><div><b>Hostel</b><div class="muted">Passed • 08:21</div></div><div><b>Vijay Nagar Gate</b><div class="muted">Next stop • 4 min</div></div><div><b>Railway Square</b><div class="muted">8 min</div></div><div><b>Main Campus</b><div class="muted">12 min</div></div></div>
+</div>
+<div class="nav"><button onclick="show('studentHome')"><span>⌂</span>Home</button><button class="active" onclick="show('studentTrack')"><span>◉</span>Track</button><button onclick="show('routes')"><span>⌖</span>Routes</button><button onclick="show('alerts')"><span>♢</span>Alerts</button></div>
+</section>
+
+<!-- ROUTES -->
+<section id="routes" class="screen">
+<div class="top"><div class="small">TRANSPORT</div><h1>Routes & Stops</h1></div>
+<div class="content">
+<div class="card"><div class="row"><b>Route A — Hostel to Campus</b><span class="badge">ACTIVE</span></div><p class="muted" style="margin-top:7px">4 stops • BUS 07 assigned</p></div>
+<div class="card">
+<div class="list"><div class="avatar">1</div><div><b>Hostel Gate</b><div class="muted">07:55 AM</div></div></div>
+<div class="list"><div class="avatar">2</div><div><b>Vijay Nagar Gate</b><div class="muted">08:25 AM • Next</div></div></div>
+<div class="list"><div class="avatar">3</div><div><b>Railway Square</b><div class="muted">08:29 AM</div></div></div>
+<div class="list"><div class="avatar">4</div><div><b>Main Campus</b><div class="muted">08:33 AM</div></div></div>
+</div>
+</div>
+<div class="nav"><button onclick="show('studentHome')"><span>⌂</span>Home</button><button onclick="show('studentTrack')"><span>◉</span>Track</button><button class="active"><span>⌖</span>Routes</button><button onclick="show('alerts')"><span>♢</span>Alerts</button></div>
+</section>
+
+<!-- ALERTS -->
+<section id="alerts" class="screen">
+<div class="top"><div class="small">NOTIFICATIONS</div><h1>Alerts</h1></div>
+<div class="content">
+<div class="card"><div class="row"><b>🚌 Bus Approaching</b><span class="green">Now</span></div><p class="muted" style="margin-top:8px">BUS 07 is approximately 1.8 km away from your stop.</p></div>
+<div class="card"><div class="row"><b>✓ Trip Started</b><span class="muted">8:10 AM</span></div><p class="muted" style="margin-top:8px">Rajesh Kumar started BUS 07 trip.</p></div>
+<div class="card"><div class="row"><b>⏱ Schedule</b><span class="muted">Today</span></div><p class="muted" style="margin-top:8px">No major delay detected.</p></div>
+</div>
+<div class="nav"><button onclick="show('studentHome')"><span>⌂</span>Home</button><button onclick="show('studentTrack')"><span>◉</span>Track</button><button onclick="show('routes')"><span>⌖</span>Routes</button><button class="active"><span>♢</span>Alerts</button></div>
+</section>
+
+<!-- DRIVER -->
+<section id="driverHome" class="screen">
+<div class="top"><div class="small">DRIVER PORTAL</div><h1>Good Morning, Jeetendra</h1><div style="margin-top:8px;color:#bfdbfe">Assigned vehicle: BUS 07</div></div>
+<div class="content">
+<div class="card"><div class="row"><div><div class="muted">BUS STATUS</div><h2>BUS 07</h2></div><span class="badge" id="driverStatus">READY</span></div>
+<div class="stats" style="margin-top:15px"><div class="stat"><span class="muted">GPS</span><b class="green">High</b></div><div class="stat"><span class="muted">Passengers</span><b>31/40</b></div></div></div>
+<div class="card"><div class="muted">ASSIGNED ROUTE</div><b>Hostel → Main Campus</b><div class="muted" style="margin-top:5px">4 scheduled stops</div></div>
+<button class="primary" id="tripBtn" onclick="toggleTrip()">▶ START TRIP</button>
+
+<div class="card" style="margin-top:12px">
+  <h3>GPS Test</h3>
+  <button class="primary" onclick="startGpsTest()">
+    Start GPS Test
+  </button>
+  <button class="secondary" onclick="stopGpsTest()">
+    Stop GPS Test
+  </button>
+  <p id="gpsStatus">GPS not started</p>
+</div>
+
+<button class="danger" style="width:100%;margin-top:10px" onclick="toast('Emergency alert sent to admin')">⚠ EMERGENCY / SOS</button>
+
+<button class="primary" onclick="startGpsTest()">Start GPS Test</button>
+<button class="secondary" onclick="stopGpsTest()">Stop GPS Test</button>
+<p id="gpsStatus">GPS not started</p>
+<div class="section-title">Trip information</div>
+<div class="card"><div class="row"><span class="muted">Next Stop</span><b>Vijay Nagar Gate</b></div><div class="row" style="margin-top:13px"><span class="muted">Estimated Arrival</span><b>4 min</b></div></div>
+</div>
+<div class="card" style="margin-top:12px">
+  <h3>Live GPS Map</h3>
+  <div id="gpsMap" style="height:300px;width:100%;border-radius:12px"></div>
+  <p id="mapStatus">Waiting for GPS...</p>
+</div>
+</section>
+
+<!-- ADMIN -->
+<section id="adminHome" class="screen">
+<div class="top"><div class="small">TRANSPORT ADMIN</div><h1>Operations Dashboard</h1><div style="margin-top:8px;color:#bfdbfe">Live fleet overview</div></div>
+<div class="content">
+<div class="stats"><div class="stat"><span class="muted">Total Buses</span><b>12</b></div><div class="stat"><span class="muted">Active</span><b class="green">8</b></div><div class="stat"><span class="muted">Students</span><b>1,240</b></div><div class="stat"><span class="muted">Alerts</span><b class="red">3</b></div></div>
+<div class="section-title">Live Fleet</div>
+<div class="card">
+<div class="list"><div class="avatar">🚌</div><div style="flex:1"><b>BUS 07</b><div class="muted">Rajesh Kumar • Hostel → Campus</div></div><span class="badge">32 km/h</span></div>
+<div class="list"><div class="avatar">🚌</div><div style="flex:1"><b>BUS 04</b><div class="muted">Amit Sharma • City Route</div></div><span style="color:#d97706;font-size:12px;font-weight:700">DELAYED</span></div>
+<div class="list"><div class="avatar">🚌</div><div style="flex:1"><b>BUS 09</b><div class="muted">Vikas Patel • North Route</div></div><span class="badge">28 km/h</span></div>
+</div>
+<div class="section-title">Live Map</div>
+<div class="map" style="height:260px"><div class="road"></div><div class="bus-marker" style="left:175px;top:145px">🚌</div><div class="bus-marker" style="left:275px;top:95px;background:#16a34a">🚌</div><div class="floating" style="position:absolute;top:12px;left:12px">8 buses online</div></div>
+<div class="section-title">Quick actions</div>
+<div class="row"><button class="secondary" onclick="toast('Route management opened')">Manage Routes</button><button class="secondary" onclick="toast('Trip history opened')">Trip History</button></div>
+</div>
+</section>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
