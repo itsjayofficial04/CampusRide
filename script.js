@@ -1,3 +1,11 @@
+import { database } from "./firebase.js";
+import {
+  ref,
+  set,
+  onValue
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+console.log("Firebase Database:", database);
+console.log("CampusRide Firebase connected!");
 let role='student', trip=false, busStep=0;
 const screens=['login','studentHome','studentTrack','routes','alerts','driverHome','adminHome'];
 
@@ -60,10 +68,20 @@ function startGpsTest() {
   gpsWatchId = navigator.geolocation.watchPosition(
     function (position) {
       const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
+const longitude = position.coords.longitude;
+const accuracy = position.coords.accuracy;
 
-      
+const locationRef = ref(database, "buses/bus01/location");
+
+set(locationRef, {
+  latitude: latitude,
+  longitude: longitude,
+  accuracy: accuracy,
+  updatedAt: Date.now()
+}).catch(error => {
+  console.error("Firebase GPS upload error:", error);
+});
+
 updateGpsMap(latitude, longitude, accuracy);
 
       console.log("Latitude:", latitude);
@@ -141,3 +159,13 @@ function updateGpsMap(lat, lng, accuracy) {
 
   setTimeout(() => gpsMap.invalidateSize(), 100);
 }
+ 
+// Make existing functions accessible to HTML buttons
+window.selectRole = selectRole;
+window.login = login;
+window.show = show;
+window.toast = toast;
+window.toggleTrip = toggleTrip;
+window.simulateBus = simulateBus;
+window.startGpsTest = startGpsTest;
+window.stopGpsTest = stopGpsTest;
