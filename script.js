@@ -22,6 +22,9 @@ function login(){
 function show(id){
  screens.forEach(s=>document.getElementById(s)?.classList.remove('active'));
  document.getElementById(id).classList.add('active');
+ if (id === 'studentTrack') {
+    listenForBusLocation();
+  }
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function toast(msg){
@@ -49,9 +52,12 @@ function simulateBus(){
  document.getElementById('etaTrack').textContent=eta;
  document.getElementById('speedHome').textContent=speed;
  document.getElementById('speedTrack').textContent=speed;
- document.getElementById('lastUpdate').textContent='Updated just now';
+ const updateLabel = document.getElementById('lastUpdate');
+if (updateLabel) {
+  updateLabel.textContent = 'Updated just now';
 }
-setInterval(simulateBus,3000);
+}
+//setInterval(simulateBus,3000);
 
 let gpsWatchId = null;
 
@@ -160,6 +166,81 @@ function updateGpsMap(lat, lng, accuracy) {
   setTimeout(() => gpsMap.invalidateSize(), 100);
 }
  
+let studentMap = null;
+let studentBusMarker = null;
+let studentAccuracyCircle = null;
+let studentLocationListenerStarted = false;
+
+function listenForBusLocation() {
+  if (studentLocationListenerStarted) return;
+  studentLocationListenerStarted = true;
+
+  const locationRef = ref(database, "buses/bus01/location");
+
+  onValue(locationRef, (snapshot) => {
+    const data = snapshot.val();
+
+    const status = document.getElementById("studentLastUpdate");
+
+    if (!data) {
+      if (status) status.textContent = "Waiting for driver GPS...";
+      return;
+    }
+
+    const lat = data.latitude;
+    const lng = data.longitude;
+    const accuracy = data.accuracy || 0;
+
+    if (typeof lat !== "number" || typeof lng !== "number") {
+      if (status) status.textContent = "Invalid GPS data";
+      return;
+    }
+
+    if (!window.L) {
+      if (status) status.textContent = "Map library not loaded";
+      return;
+    }
+
+    if (!studentMap) {
+      studentMap = L.map("studentMap").setView([lat, lng], 16);
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(studentMap);
+
+      studentBusMarker = L.marker([lat, lng])
+        .addTo(studentMap)
+        .bindPopup("CampusRide Bus");
+
+      studentAccuracyCircle = L.circle([lat, lng], {
+        radius: accuracy
+      }).addTo(studentMap);
+
+    } else {
+      studentBusMarker.setLatLng([lat, lng]);
+      studentAccuracyCircle
+        .setLatLng([lat, lng])
+        .setRadius(accuracy);
+
+      studentMap.setView([lat, lng]);
+    }
+
+    if (status) {
+      status.textContent = "Live • " +
+        new Date(data.updatedAt).toLocaleTimeString();
+    }
+
+    setTimeout(() => studentMap.invalidateSize(), 200);
+
+  }, (error) => {
+    console.error("Student GPS read error:", error);
+
+    const status = document.getElementById("studentLastUpdate");
+    if (status) status.textContent = "GPS connection error";
+  });
+}
+
 // Make existing functions accessible to HTML buttons
 window.selectRole = selectRole;
 window.login = login;
